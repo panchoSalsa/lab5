@@ -46,10 +46,15 @@ void parse(char* line) {
 		// useful for debugging.
 		//print_tokens(info.tokens, info.token_count);
 
+		// char* temp = *info.tokens;
+		// info.tokens[0] = info.tokens[1];
+		// info.tokens[1] = temp;
+
 		print_output(info.tokens, info.token_count, &info);
 
 		// free tokens
 		
+
 	} else {
 		perror("malloc() error");
 	}
@@ -218,8 +223,10 @@ int check_command(char * word) {
 		exit(1);
 	}
 	else if (pid == 0) {          /* for the child process:         */
-		// redirect childs stdout > dev/null
-		// i dont want execvp("which, *word") to write to stdout.
+
+		// i dont want execvp("which, *word") to write to the console
+		// so i redirect stdout  and stderr > /dev/null
+
 		// since i just care about the return code of the which command i can
 		// ignore writes to stdout.
 		// source=http://stackoverflow.com/questions/4832603/how-could-i-temporary-redirect-stdout-to-a-file-in-a-c-program
@@ -232,7 +239,13 @@ int check_command(char * word) {
 			exit(1);
 		}
 
+		// redirect childs stdout > /dev/null
 		if (dup2(new, 1) == -1) {
+			perror("dup2() error");
+		}
+
+		// redirect childs stderr > /dev/null
+		if (dup2(new, 2) == -1) {
 			perror("dup2() error");
 		}
 
