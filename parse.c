@@ -25,24 +25,31 @@
 struct cmd_info;
 
 void parse(char* line) {
-	// printf("inside Parse()\n");
-	// printf("parsing line %s", line);
-	// struct cmd_info a;
-	// a.x = 15; 
-	// printf("cmd_info.x = %d\n", a.x);
-
 	struct cmd_info info;
+	// must initialize struct.
+	struct_constructor(&info);
+
+	// token_count determines how many tokens are in the cmd line.
+	// token: is a word separted by a space.
 	int token_count;
 	token_count = count_tokens(line);
-	printf("%d\n", token_count);
+	// printf("%d\n", token_count);
+
+	// allocate array of tokens
 	char** tokens = (char**) malloc(sizeof(char *) * token_count);
 	if (tokens != NULL) {
-		tokenize_line(tokens, line);
+		tokenize_line(tokens, line, &info);
 		//print_tokens(tokens, token_count);
 		print_output(tokens, token_count);
 		// free tokens
 	}
 
+	printf("command count: %d\n", info.command_count);
+
+}
+
+void struct_constructor(struct cmd_info* info) {
+	info->command_count = 0; 
 }
 
 
@@ -69,7 +76,7 @@ int count_tokens(const char* line) {
 
 
 // source=http://www.tutorialspoint.com/ansi_c/c_strtok.htm
-void tokenize_line(char** tokens, char* line) {
+void tokenize_line(char** tokens, char* line, struct cmd_info* info) {
 	char * pch;
 	pch = strtok (line," ");
 	// source=http://stackoverflow.com/questions/19342155/how-to-store-characters-into-a-char-pointer-using-the-strcpy-function
@@ -83,6 +90,11 @@ void tokenize_line(char** tokens, char* line) {
 		// source=http://stackoverflow.com/questions/7812805/how-to-malloc-char-table
 		*tokens = (char*) malloc ( (strlen(pch) + 1) * sizeof(char));
 		strcpy(*tokens,pch);
+
+		if (check_command(*tokens)) {
+			++(info->command_count);
+		}
+
 		// advance the pointer to next char* 
 		++tokens;
 
@@ -107,24 +119,24 @@ void print_tokens(char** tokens,int token_count) {
 
 
 void print_output(char** tokens,int token_count) {
-	int command_count;
-	command_count = 0;
+	// int command_count;
+	// command_count = 0;
 	int i;
 	for (i = 0; i < token_count; ++i) {
 		// printf("%s ", *tokens);
 		// ++tokens;
 		if (validate_word(*tokens)) {
 			printf("'%s' ", *tokens);
-			if (check_command(*tokens)) {
-				++command_count;
-			}
+			// if (check_command(*tokens)) {
+			// 	++command_count;
+			// }
 		} else {
 			printf("%s ", *tokens);
 		}
 		++tokens;
 	}
 	printf("\n");
-	printf("command count: %d\n", command_count);
+	// printf("command count: %d\n", command_count);
 }
 
 // source=http://stackoverflow.com/questions/1631450/c-regular-expression-howto
