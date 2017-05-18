@@ -40,11 +40,11 @@ void parse(char* line) {
 	if (tokens != NULL) {
 		tokenize_line(tokens, line, &info);
 		//print_tokens(tokens, token_count);
-		print_output(tokens, token_count);
+		print_output(tokens, token_count, &info);
 		// free tokens
 	}
 
-	printf("command count: %d\n", info.command_count);
+	// printf("command count: %d\n", info.command_count);
 
 }
 
@@ -82,7 +82,7 @@ void tokenize_line(char** tokens, char* line, struct cmd_info* info) {
 	// source=http://stackoverflow.com/questions/19342155/how-to-store-characters-into-a-char-pointer-using-the-strcpy-function
 	// source=https://www.tutorialspoint.com/c_standard_library/c_function_strlen.htm
 	while (pch != NULL) {
-		printf ("%s",pch);
+		// printf ("%s",pch);
 		// allocate space for the token returned by strtok().
 		// strlen(pch) + 1) because strlen omits the '\0' but we need it in order
 		// to deal with strings.
@@ -100,11 +100,11 @@ void tokenize_line(char** tokens, char* line, struct cmd_info* info) {
 
 		pch = strtok (NULL, " ");
 
-		if (pch != NULL) {
-			printf("\n");
-		}
+		// if (pch != NULL) {
+		// 	printf("\n");
+		// }
 	}
-	printf("\n");
+	// printf("\n");
 }
 
 void print_tokens(char** tokens,int token_count) {
@@ -118,25 +118,19 @@ void print_tokens(char** tokens,int token_count) {
 }
 
 
-void print_output(char** tokens,int token_count) {
-	// int command_count;
-	// command_count = 0;
+void print_output(char** tokens,int token_count, struct cmd_info* info) {
+	// display number of valid commands
+	printf("%d: ", info->command_count);
 	int i;
 	for (i = 0; i < token_count; ++i) {
-		// printf("%s ", *tokens);
-		// ++tokens;
 		if (validate_word(*tokens)) {
 			printf("'%s' ", *tokens);
-			// if (check_command(*tokens)) {
-			// 	++command_count;
-			// }
 		} else {
 			printf("%s ", *tokens);
 		}
 		++tokens;
 	}
 	printf("\n");
-	// printf("command count: %d\n", command_count);
 }
 
 // source=http://stackoverflow.com/questions/1631450/c-regular-expression-howto
