@@ -31,27 +31,33 @@ void parse(char* line) {
 
 	// token_count determines how many tokens are in the cmd line.
 	// token: is a word separted by a space.
-	int token_count;
-	token_count = count_tokens(line);
+	// int token_count;
+	info.token_count = count_tokens(line);
 	// printf("%d\n", token_count);
 
 	// allocate array of tokens
-	char** tokens = (char**) malloc(sizeof(char *) * token_count);
-	if (tokens != NULL) {
-		tokenize_line(tokens, line, &info);
-		//print_tokens(tokens, token_count);
-		print_output(tokens, token_count, &info);
+	// char** tokens = (char**) malloc(sizeof(char *) * token_count);
+	info.tokens = (char**) malloc(sizeof(char *) * info.token_count);
+
+	if (info.tokens != NULL) {
+		tokenize_line(info.tokens, line, &info);
+
+		// this function prints each token in a separate line.
+		// useful for debugging.
+		//print_tokens(info.tokens, info.token_count);
+
+		print_output(info.tokens, info.token_count, &info);
+
 		// free tokens
+		
+	} else {
+		perror("malloc() error");
 	}
-
-	printf("| count: %d\n", info.pipe_count);
-	printf("> count: %d\n", info.input_redirection_count);
-	printf("< count: %d\n", info.output_redirection_count);
-	printf(">> count: %d\n", info.append_count);
-
 }
 
 void struct_constructor(struct cmd_info* info) {
+	info->tokens = NULL;
+	info->token_count = 0;
 	info->command_count = 0;
 	info->pipe_count = 0;
 	info->input_redirection_count = 0;
@@ -153,6 +159,13 @@ void print_output(char** tokens,int token_count, struct cmd_info* info) {
 		}
 		++tokens;
 	}
+	printf("\n");
+
+	printf("| count: %d\n", info->pipe_count);
+	printf("< count: %d\n", info->input_redirection_count);
+	printf("> count: %d\n", info->output_redirection_count);
+	printf(">> count: %d\n", info->append_count);
+
 	printf("\n");
 }
 

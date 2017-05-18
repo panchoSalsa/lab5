@@ -9,6 +9,8 @@
 // the command line arguments are to each command
 
 struct cmd_info {
+	char** tokens;
+	int token_count;
 	int command_count;
 	int pipe_count;
 	int input_redirection_count;
