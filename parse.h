@@ -10,6 +10,10 @@
 
 struct cmd_info {
 	int command_count;
+	int pipe_count;
+	int input_redirection_count;
+	int output_redirection_count;
+	int append_count;
 };
 
 void parse(char* line);
@@ -21,5 +25,9 @@ void print_output(char** tokens,int token_count, struct cmd_info* info);
 int match(const char *string, char *pattern);
 int validate_word(char * token);
 int check_command(char * word);
+int check_pipe(char* token);
+int check_input_redirection(char* word);
+int check_output_redirection(char* word);
+int check_append(char* word);
 
 #endif // PARSE_H_

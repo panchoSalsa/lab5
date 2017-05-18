@@ -44,12 +44,19 @@ void parse(char* line) {
 		// free tokens
 	}
 
-	// printf("command count: %d\n", info.command_count);
+	printf("| count: %d\n", info.pipe_count);
+	printf("> count: %d\n", info.input_redirection_count);
+	printf("< count: %d\n", info.output_redirection_count);
+	printf(">> count: %d\n", info.append_count);
 
 }
 
 void struct_constructor(struct cmd_info* info) {
-	info->command_count = 0; 
+	info->command_count = 0;
+	info->pipe_count = 0;
+	info->input_redirection_count = 0;
+	info->output_redirection_count = 0;
+	info->append_count = 0;
 }
 
 
@@ -93,6 +100,22 @@ void tokenize_line(char** tokens, char* line, struct cmd_info* info) {
 
 		if (check_command(*tokens)) {
 			++(info->command_count);
+		}
+
+		if (check_pipe(*tokens) == 0) {
+			++(info->pipe_count);
+		}
+
+		if (check_input_redirection(*tokens) == 0) {
+			++(info->input_redirection_count);
+		}
+
+		if (check_output_redirection(*tokens) == 0) {
+			++(info->output_redirection_count);
+		}
+
+		if (check_append(*tokens) == 0) {
+			++(info->append_count);
 		}
 
 		// advance the pointer to next char* 
@@ -225,6 +248,21 @@ int check_command(char * word) {
 	return 0;
 }
 
+int check_pipe(char* word) {
+	return strcmp(word,"|");
+}
+
+int check_input_redirection(char* word) {
+	return strcmp(word,"<");
+}
+
+int check_output_redirection(char* word) {
+	return strcmp(word,">");
+}
+
+int check_append(char* word) {
+	return strcmp(word,">>");
+}
 
 /*
 
