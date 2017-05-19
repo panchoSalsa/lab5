@@ -49,6 +49,8 @@ void parse(char* line) {
 		// char* temp = *info.tokens;
 		// info.tokens[0] = info.tokens[1];
 		// info.tokens[1] = temp;
+		
+		test(info.tokens, info.token_count);
 
 		print_output(info.tokens, info.token_count, &info);
 
@@ -288,6 +290,106 @@ int check_output_redirection(char* word) {
 
 int check_append(char* word) {
 	return strcmp(word,">>");
+}
+
+
+void test(char** tokens, int token_count) {
+	int start;
+	start = 0;
+	int last;
+	last = get_end_of_command(&start, token_count, tokens);
+	printf("last is %d\n", last);
+	modify_input_redirection(start,last,tokens);
+	start = 0; 
+	modify_output_redirection(start,last,tokens);
+}
+
+// this function is called the first time with *start = 0, start at first token
+// the next time it is called start points either to a token after a pipe ('|')
+// or start is >= size meaning that it processed all the tokens and it needs 
+// to notify the programmer using a -1.
+
+// returns the position of a token before a pipe ('|')
+
+// if it finishes all tokens it returns the last position of the token, size - 1
+// size -1 ==> position of last token
+
+int get_end_of_command(int* start, int size, char** tokens) {
+	// check if you are at the end of tokens
+	if (*start >= size) {
+		return -1;
+	}
+
+	int i;
+	for (i = *start; i < size; ++i) {
+		if (strcmp(*tokens,"|") == 0) {
+			// printf("%s\n", "matchin |");
+
+			// change starting location for next call
+			*start = i + 1;
+			return (i - 1); 
+		}
+		++tokens;
+	}
+
+
+	return size - 1;
+}
+
+void modify_input_redirection(int start, int end, char** tokens) {
+	int i;
+	// itertating from command to pipe
+	for (i = start; i < end; ++i) {
+		if ( (strcmp(tokens[i],"<") == 0) && (i != start)) {
+			// printf("found <\n");
+
+			char* redirection = tokens[i];
+			char* filename = tokens[i + 1 ];
+
+			shift_right(tokens, start, i + 1);
+
+			tokens[start] = redirection;
+			tokens[start + 1] = filename; 
+			return;
+		}
+	}
+}
+
+void modify_output_redirection(int start, int end, char** tokens) {
+	int i;
+	// itertating from command to pipe
+	for (i = start; i < end; ++i) {
+		// if token[i] == '>' and i == end - 1 then dont do anything
+		// since the tokens ( > 'filename') are at the end
+		if ( (strcmp(tokens[i],">") == 0) && (i != end - 1)) {
+			// printf("found >\n");
+
+			char* redirection = tokens[ i ];
+			char* filename = tokens[i + 1 ];
+
+			shift_left(tokens, i, end - 1);
+
+			tokens[ end - 1 ] = redirection;
+			tokens[ end ] = filename; 
+			return;
+		}
+	}
+}
+
+void shift_right(char** tokens, int start, int end) {
+	int i;
+
+	for (i = end; i > start; --i) {
+		tokens[i] = tokens[i - 2];
+	}
+}
+
+void shift_left(char** tokens, int start, int end) {
+	int i;
+
+	for (i = start; i < end; ++i) {
+		tokens[i] = tokens[i + 2];
+	}
 }
 
 /*

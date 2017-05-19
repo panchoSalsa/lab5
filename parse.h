@@ -31,5 +31,11 @@ int check_pipe(char* token);
 int check_input_redirection(char* word);
 int check_output_redirection(char* word);
 int check_append(char* word);
+void test(char** tokens, int token_count);
+int get_end_of_command(int* start, int size, char** tokens);
+void modify_input_redirection(int start, int end, char** tokens);
+void modify_output_redirection(int start, int end, char** tokens);
+void shift_left(char** tokens, int start, int end);
+void shift_right(char** tokens, int start, int end);
 
 #endif // PARSE_H_
