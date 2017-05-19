@@ -31,7 +31,7 @@ int check_pipe(char* token);
 int check_input_redirection(char* word);
 int check_output_redirection(char* word);
 int check_append(char* word);
-void test(char** tokens, int token_count);
+void modify_redirections(char** tokens, int token_count);
 int get_end_of_command(int start_of_command, int* next_starting_command, int token_count, char** tokens);
 void modify_input_redirection(int start_of_command, int end_of_command, char** tokens);
 void shift_right(char** tokens, int start, int end);

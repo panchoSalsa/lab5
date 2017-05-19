@@ -47,15 +47,15 @@ void parse(char* line) {
 		// useful for debugging.
 		//print_tokens(info.tokens, info.token_count);
 
-		// char* temp = *info.tokens;
-		// info.tokens[0] = info.tokens[1];
-		// info.tokens[1] = temp;
-		
-		test(info.tokens, info.token_count);
+		modify_redirections(info.tokens, info.token_count);
 
 		print_output(info.tokens, info.token_count, &info);
 
 		// free tokens
+
+		// TO-DO
+
+		//
 		
 
 	} else {
@@ -162,17 +162,22 @@ void print_output(char** tokens,int token_count, struct cmd_info* info) {
 	for (i = 0; i < token_count; ++i) {
 		if (validate_word(*tokens)) {
 			printf("'%s' ", *tokens);
-		} else {
+		} else if ( (check_input_redirection(*tokens) == 0) || (check_append(*tokens) == 0) || (check_output_redirection(*tokens) == 0) ) {
+			printf("%s", *tokens);
+		} else if ( (check_pipe(*tokens) == 0) ) {
 			printf("%s ", *tokens);
 		}
+		// } else {
+		// 	printf("%s ", *tokens);
+		// }
 		++tokens;
 	}
 	printf("\n");
 
-	printf("| count: %d\n", info->pipe_count);
-	printf("< count: %d\n", info->input_redirection_count);
-	printf("> count: %d\n", info->output_redirection_count);
-	printf(">> count: %d\n", info->append_count);
+	// printf("| count: %d\n", info->pipe_count);
+	// printf("< count: %d\n", info->input_redirection_count);
+	// printf("> count: %d\n", info->output_redirection_count);
+	// printf(">> count: %d\n", info->append_count);
 
 	printf("\n");
 }
@@ -294,13 +299,13 @@ int check_append(char* word) {
 }
 
 
-void test(char** tokens, int token_count) {
-	int start_of_command;
-	start_of_command = 0;
-	int next_starting_command;
-	next_starting_command = 0;
-	int end_of_command;
-	end_of_command = 0;
+void modify_redirections(char** tokens, int token_count) {
+	int start_of_command, next_starting_command, end_of_command;
+	// start_of_command = 0;
+	// int next_starting_command;
+	// next_starting_command = 0;
+	// int end_of_command;
+	start_of_command = next_starting_command =end_of_command = 0;
 	while ( (end_of_command = get_end_of_command(start_of_command, &next_starting_command, token_count, tokens)) != -1 ) {
 		modify_input_redirection(start_of_command, end_of_command, tokens);
 		modify_output_redirection(start_of_command, end_of_command, tokens);
@@ -385,7 +390,7 @@ void modify_output_redirection(int start_of_command, int end_of_command, char** 
 	for (i = start_of_command; i < end_of_command; ++i) {
 		// if token[i] == '>' and i == end - 1 then dont do anything
 		// since the tokens ( > 'filename') are at the end
-		if ( (strcmp(tokens[i],">") == 0) && (i != end_of_command - 1)) {
+		if ( ( (strcmp(tokens[i],">") == 0) || (strcmp(tokens[i],">>") == 0) ) && (i != end_of_command - 1)) {
 			// printf("found >\n");
 
 
