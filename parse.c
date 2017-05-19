@@ -20,7 +20,8 @@
 #include <regex.h>
 
 
-#include <fcntl.h>
+#include <fcntl.h> // for open
+#include <unistd.h> // for close
 
 struct cmd_info;
 
@@ -294,14 +295,19 @@ int check_append(char* word) {
 
 
 void test(char** tokens, int token_count) {
-	int start;
-	start = 0;
-	int last;
-	last = get_end_of_command(&start, token_count, tokens);
-	printf("last is %d\n", last);
-	modify_input_redirection(start,last,tokens);
-	start = 0; 
-	modify_output_redirection(start,last,tokens);
+	int start_of_command;
+	start_of_command = 0;
+	int next_starting_command;
+	next_starting_command = 0;
+	int end_of_command;
+	end_of_command = 0;
+	while ( (end_of_command = get_end_of_command(start_of_command, &next_starting_command, token_count, tokens)) != -1 ) {
+		modify_input_redirection(start_of_command, end_of_command, tokens);
+		modify_output_redirection(start_of_command, end_of_command, tokens);
+
+		// go to the next command 
+		start_of_command = next_starting_command;
+	}
 }
 
 // this function is called the first time with *start = 0, start at first token
@@ -314,63 +320,52 @@ void test(char** tokens, int token_count) {
 // if it finishes all tokens it returns the last position of the token, size - 1
 // size -1 ==> position of last token
 
-int get_end_of_command(int* start, int size, char** tokens) {
+int get_end_of_command(int start_of_command, int* next_starting_command, int token_count, char** tokens) {
 	// check if you are at the end of tokens
-	if (*start >= size) {
+	if (start_of_command >= token_count) {
 		return -1;
 	}
 
 	int i;
-	for (i = *start; i < size; ++i) {
-		if (strcmp(*tokens,"|") == 0) {
-			// printf("%s\n", "matchin |");
+	for (i = start_of_command; i < token_count; ++i) {
+		if (strcmp(tokens[i],"|") == 0) {
 
 			// change starting location for next call
-			*start = i + 1;
+			// next starting position is one token after the pipe ('|')
+			*next_starting_command = i + 1;
+
+			// end_of_command will be set to this value (i - 1).
+			// (i - 1) is one token before the pipe ('|').
 			return (i - 1); 
 		}
-		++tokens;
 	}
 
+	// setting *next_start = token_count will terminate the while loop because
+	// in the next call start >= token_count
+	*next_starting_command = token_count;
 
-	return size - 1;
+	// return position of last token
+	return token_count - 1;
 }
 
-void modify_input_redirection(int start, int end, char** tokens) {
+void modify_input_redirection(int start_of_command, int end_of_command, char** tokens) {
 	int i;
 	// itertating from command to pipe
-	for (i = start; i < end; ++i) {
-		if ( (strcmp(tokens[i],"<") == 0) && (i != start)) {
+	for (i = start_of_command; i < end_of_command; ++i) {
+		if ( (strcmp(tokens[i],"<") == 0) && (i != start_of_command)) {
 			// printf("found <\n");
 
-			char* redirection = tokens[i];
-			char* filename = tokens[i + 1 ];
-
-			shift_right(tokens, start, i + 1);
-
-			tokens[start] = redirection;
-			tokens[start + 1] = filename; 
-			return;
-		}
-	}
-}
-
-void modify_output_redirection(int start, int end, char** tokens) {
-	int i;
-	// itertating from command to pipe
-	for (i = start; i < end; ++i) {
-		// if token[i] == '>' and i == end - 1 then dont do anything
-		// since the tokens ( > 'filename') are at the end
-		if ( (strcmp(tokens[i],">") == 0) && (i != end - 1)) {
-			// printf("found >\n");
-
+			// we are currently pointing to "<" token
 			char* redirection = tokens[ i ];
-			char* filename = tokens[i + 1 ];
+			char* filename = tokens[ i + 1 ];
 
-			shift_left(tokens, i, end - 1);
+			// we will shift all the tokens to the right.
+			// i + 1 because we want to begin shifting and replacing
+			// the filename first, the "<" second ...
+			shift_right(tokens, start_of_command, i + 1);
 
-			tokens[ end - 1 ] = redirection;
-			tokens[ end ] = filename; 
+			tokens[ start_of_command ] = redirection;
+			tokens[ start_of_command + 1 ] = filename; 
 			return;
 		}
 	}
@@ -383,6 +378,33 @@ void shift_right(char** tokens, int start, int end) {
 		tokens[i] = tokens[i - 2];
 	}
 }
+
+void modify_output_redirection(int start_of_command, int end_of_command, char** tokens) {
+	int i;
+	// itertating from command to pipe
+	for (i = start_of_command; i < end_of_command; ++i) {
+		// if token[i] == '>' and i == end - 1 then dont do anything
+		// since the tokens ( > 'filename') are at the end
+		if ( (strcmp(tokens[i],">") == 0) && (i != end_of_command - 1)) {
+			// printf("found >\n");
+
+
+			// we are currently pointing to ">" token
+			char* redirection = tokens[ i ];
+			char* filename = tokens[ i + 1 ];
+
+			// we will shift all the tokens to the left.
+			// i - 1 because we want to begin shifting from the end of 
+			// the command
+			shift_left(tokens, i, end_of_command - 1);
+
+			tokens[ end_of_command - 1 ] = redirection;
+			tokens[ end_of_command ] = filename; 
+			return;
+		}
+	}
+}
+
 
 void shift_left(char** tokens, int start, int end) {
 	int i;
