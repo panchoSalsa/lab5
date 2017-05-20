@@ -418,12 +418,3 @@ void shift_left(char** tokens, int start, int end) {
 		tokens[i] = tokens[i + 2];
 	}
 }
-
-/*
-
-? cat<read
-1: <'read' 'cat' 
-
-? cat <read
-1: <'read' 'cat' 
-*/
