@@ -54,13 +54,14 @@ void parse(char* line) {
 		// free dynamically allocated token array
 		free_tokens(info.tokens, info.token_count);
 
+		// removing dangling pointer
 		info.tokens = NULL;
 
-		if (info.tokens == NULL) {
-			printf("tokens is NULL \n");
-		} else {
-			printf("tokens is NOT NULL \n");
-		}
+		// if (info.tokens == NULL) {
+		// 	printf("tokens is NULL \n");
+		// } else {
+		// 	printf("tokens is NOT NULL \n");
+		// }
 
 	} else {
 		perror("malloc() error");
@@ -192,6 +193,7 @@ void free_tokens(char** tokens, int token_count) {
 	for (i = 0; i < token_count; ++i) {
 		free(tokens[i]);
 		// after freeing dynamic memory, i set every token* to NULL
+		// to remove dangling pointers
 		tokens[i] = NULL;
 	}
 
@@ -220,7 +222,7 @@ int validate_word(char * token) {
 	// regex to match word "^[a-zA-Z0-9\\-]+"
 	// need to escape - in regex using \\- 
 	//source=http://stackoverflow.com/questions/18477153/c-compiler-warning-unknown-escape-sequence-using-regex-for-c-program
-	if ( match(token,"^[\\.a-zA-Z0-9\\-]+") ) {
+	if ( match(token,"^[\\.a-z\'A-Z\"0-9\\-]+") ) {
 		// printf("match\n");
 		return 1;
 	}
