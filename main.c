@@ -1,3 +1,6 @@
+// compile
+// gcc main.c parse.c
+
 #include <stdio.h>
 #include "parse.h" /* Include the header here, to obtain the function declaration */
 #include <string.h>

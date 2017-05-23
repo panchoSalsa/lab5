@@ -172,7 +172,7 @@ void print_output(char** tokens,int token_count, struct cmd_info* info) {
 		// }
 		++tokens;
 	}
-	printf("\n");
+//	printf("\n");
 
 	// printf("| count: %d\n", info->pipe_count);
 	// printf("< count: %d\n", info->input_redirection_count);
@@ -204,7 +204,7 @@ int validate_word(char * token) {
 	// regex to match word "^[a-zA-Z0-9\\-]+"
 	// need to escape - in regex using \\- 
 	//source=http://stackoverflow.com/questions/18477153/c-compiler-warning-unknown-escape-sequence-using-regex-for-c-program
-	if ( match(token,"^[a-zA-Z0-9\\-]+") ) {
+	if ( match(token,"^[\\.a-zA-Z0-9\\-]+") ) {
 		// printf("match\n");
 		return 1;
 	}
@@ -223,6 +223,7 @@ int check_command(char * word) {
 	char* argv[3];
 	// execvp("which", "which, *word, NULL");
 	argv[0] = "which";
+	// argv[0] = "/usr/bin/which";
 	argv[1] = word;
 	argv[2] = NULL;
 
@@ -263,6 +264,7 @@ int check_command(char * word) {
 
 		// execvp("which", "which, *word, NULL");
 		if (execvp(argv[0],argv) < 0) {     /* execute the command  */
+		// if (execl(argv[0],argv) < 0) {     /* execute the command  */
 			perror("execvp() error");
 			exit(1);
 		}
