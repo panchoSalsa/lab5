@@ -24,6 +24,7 @@ int count_tokens(const char* line);
 void tokenize_line(char** tokens, char* line, struct cmd_info* info);
 void print_tokens(char** tokens,int token_count);
 void print_output(char** tokens,int token_count, struct cmd_info* info);
+void free_tokens(char** tokens, int token_count);
 int match(const char *string, char *pattern);
 int validate_word(char * token);
 int check_command(char * word);

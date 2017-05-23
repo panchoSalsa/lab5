@@ -51,12 +51,16 @@ void parse(char* line) {
 
 		print_output(info.tokens, info.token_count, &info);
 
-		// free tokens
+		// free dynamically allocated token array
+		free_tokens(info.tokens, info.token_count);
 
-		// TO-DO
+		info.tokens = NULL;
 
-		//
-		
+		if (info.tokens == NULL) {
+			printf("tokens is NULL \n");
+		} else {
+			printf("tokens is NOT NULL \n");
+		}
 
 	} else {
 		perror("malloc() error");
@@ -180,6 +184,18 @@ void print_output(char** tokens,int token_count, struct cmd_info* info) {
 	// printf(">> count: %d\n", info->append_count);
 
 	printf("\n");
+}
+
+
+void free_tokens(char** tokens, int token_count) {
+	int i;
+	for (i = 0; i < token_count; ++i) {
+		free(tokens[i]);
+		// after freeing dynamic memory, i set every token* to NULL
+		tokens[i] = NULL;
+	}
+
+	free(tokens);
 }
 
 // source=http://stackoverflow.com/questions/1631450/c-regular-expression-howto
